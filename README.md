@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Шаблон: тату-студия
 
-## Getting Started
+Сайт на Next.js в строгом монохромном стиле. Весь текст на украинском.
+Портфолио мастера с фильтром по стилям, страница мастера, цены и онлайн-запись на сеанс.
+Заявки приходят администраторам в Telegram. Базы данных нет.
 
-First, run the development server:
+## Как работает запись
+
+1. Гость выбирает **день**: только Пн–Пт, от +3 до +14 дней от сегодня (по киевскому времени).
+   Например, 19-го первый доступный день — 22-е. Точное время мастер согласует сам.
+2. Заполняет: телефон\*, имя\*, Instagram, «мне есть 18»\*, статура (Чоловіча / Жіноча)\*, идея,
+   до 3 фото-примеров по 10 МБ.
+3. Фото сжимаются прямо в браузере (10 МБ → ~0,3 МБ), заявка уходит на `/api/booking`.
+4. Сервер ещё раз проверяет все поля (браузеру не доверяем) и рассылает заявку **всем админам**
+   из `.env`: сообщение со всеми данными плюс альбом с фото.
+
+Защита: скрытое поле-ловушка для ботов и лимит 5 заявок за 10 минут с одного адреса.
+Если у одного админа бот заблокирован, остальные всё равно получат заявку.
+
+## Настройка Telegram (5 минут)
+
+1. В Telegram открыть [@BotFather](https://t.me/BotFather) → `/newbot` → получить токен.
+2. Каждый админ пишет своему новому боту `/start` (без этого бот не может ему писать).
+3. Узнать chat id каждого админа: написать [@userinfobot](https://t.me/userinfobot).
+   Для группы: добавить бота в группу, id группы начинается с минуса.
+4. Скопировать `.env.example` в `.env` и заполнить:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```
+TELEGRAM_BOT_TOKEN=123456789:AAH...
+TELEGRAM_CHAT_IDS=111111111,222222222
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+На хостинге (Vercel и т.п.) эти две переменные задаются в настройках проекта.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Под нового клиента
 
-## Learn More
+- Данные — `src/data/site.ts`: название, мастер, тексты, цены, этапы, контакты, работы, правила записи
+  (`booking`: дни наперёд, рабочие дни, лимиты фото).
+- Фото: положить в `images-src/site/` (`hero.jpg`, `master.jpg`) и `images-src/works/` (`01.jpg` …),
+  запустить `npm run images`, затем прописать пути в `site.ts`
+  (`hero.image`, `master.photo`, `image` у каждой работы). Пока фото нет — стоят заглушки.
+- Промпты для генерации — `../prompts/tattoo.md`.
 
-To learn more about Next.js, take a look at the following resources:
+## Команды
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install     # один раз
+npm run images  # сжать фото из images-src/
+npm run dev     # локальный просмотр
+npm run build   # сборка
+npm start       # запуск собранного сайта
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Сайт **не статический**: для отправки заявок нужен сервер (Vercel, Netlify или любой Node.js-хостинг).
+Cloudflare Pages в статическом режиме не подойдёт.

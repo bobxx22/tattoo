@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
+/* Монохром: лише чорний, білий і сірі. Жодних заокруглень і тіней — плоско й строго. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --surface: #131313;
+  --foreground: #f2f2f2;
+  --muted: #8c8c8c;
+  --line: #2a2a2a;
+  --danger: #ff6b6b;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-label);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Дрібні підписи в стилі «технічної» розмітки */
+.label {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Заглушка, поки немає фото: тонка діагональна штриховка */
+.placeholder {
+  background-color: var(--surface);
+  background-image: repeating-linear-gradient(135deg, transparent 0 14px, #1c1c1c 14px 15px);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
